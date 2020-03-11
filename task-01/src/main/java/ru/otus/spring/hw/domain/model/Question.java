@@ -1,4 +1,4 @@
-package ru.otus.spring.hw.domain;
+package ru.otus.spring.hw.domain.model;
 
 import java.util.Map;
 import java.util.Set;

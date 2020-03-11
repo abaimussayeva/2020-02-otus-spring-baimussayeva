@@ -1,4 +1,4 @@
-package ru.otus.spring.hw.service;
+package ru.otus.spring.hw.domain.application;
 
 import java.io.IOException;
 

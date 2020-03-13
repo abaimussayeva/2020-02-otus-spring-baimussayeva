@@ -4,8 +4,9 @@ package ru.otus.spring.hw.service.test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import ru.otus.spring.hw.domain.Question;
-import ru.otus.spring.hw.domain.Variant;
+import ru.otus.spring.hw.application.business.TestServiceConsole;
+import ru.otus.spring.hw.domain.model.Question;
+import ru.otus.spring.hw.domain.model.Variant;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,29 +1,15 @@
-package ru.otus.spring.hw.service.test;
+package ru.otus.spring.hw.domain.business.test;
 
-
-import ru.otus.spring.hw.domain.Question;
+import ru.otus.spring.hw.domain.model.Question;
 import ru.otus.spring.hw.util.OutColor;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class TestServiceConsole implements TestService {
+public interface TestService {
 
-    @Override
-    public List<String> answerTheQuestions(List<Question> questions) {
-        Scanner scanner = new Scanner(System.in);
-        List<String> answers = new ArrayList<>();
-        for (int i = 0; i < questions.size(); i++) {
-            Question question = questions.get(i);
-            System.out.println(i + 1 + ". " + question.getPrintQuestion());
-            answers.add(scanner.nextLine());
-        }
-        return answers;
-    }
+    List<String> answerTheQuestions(List<Question> questions);
 
-    @Override
-    public int evaluate(List<String> answers, List<Question> questions) {
+    default int evaluate(List<String> answers, List<Question> questions) {
         if (answers == null || questions == null) {
             throw new IllegalArgumentException("Parameters cannot be null");
         }
@@ -39,8 +25,7 @@ public class TestServiceConsole implements TestService {
         return mark;
     }
 
-    @Override
-    public String getPrintResult(List<String> answers, List<Question> questions) {
+    default String getPrintResult(List<String> answers, List<Question> questions) {
         if (answers == null || questions == null) {
             throw new IllegalArgumentException("Parameters cannot be null");
         }

@@ -3,45 +3,42 @@ package ru.otus.spring.hw.application.datasource;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Repository;
+import ru.otus.spring.hw.application.config.LocaleProps;
 import ru.otus.spring.hw.domain.business.dao.QuestionsDao;
+import ru.otus.spring.hw.domain.errors.QuestionLoadException;
 import ru.otus.spring.hw.domain.model.Question;
 import ru.otus.spring.hw.domain.model.Variant;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Repository
 public class QuestionsDaoCsv implements QuestionsDao {
 
-    private static final String QUESTION_PREF = "question_";
-    private static final String ANSWER_PREF = "q";
+    private final LocaleProps props;
 
-    private final String resource;
-    private final MessageSource messageSource;
-
-    public QuestionsDaoCsv(@Value("${questions.file}") String resource, MessageSource messageSource) {
-        this.resource = resource;
-        this.messageSource = messageSource;
+    public QuestionsDaoCsv(LocaleProps props) {
+        this.props = props;
     }
 
     @Override
-    public List<Question> getQuestions(Locale locale) throws IOException {
+    public List<Question> getQuestions() throws QuestionLoadException {
         List<Question> questions = new ArrayList<>();
-        try (InputStreamReader input = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(resource))) {
+        try (InputStreamReader input = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(props.getQuestionFile()))) {
             CSVParser csvParser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(input);
-            int i = 1;
             for (CSVRecord record : csvParser) {
                 Map<Variant, String> variants = new TreeMap<>();
                 for (Variant v: Variant.values()) {
-                    variants.put(v, messageSource.getMessage(ANSWER_PREF + v.name() + "_" + i, new Object[]{}, locale));
+                    variants.put(v, record.get(v.name()));
                 }
-                questions.add(new Question(messageSource.getMessage(QUESTION_PREF + i, new Object[]{}, locale), variants, record.get("Answer")));
-                i++;
+                questions.add(new Question(record.get("Question"), variants, record.get("Answer")));
             }
+        } catch (Exception e) {
+            throw new QuestionLoadException("Error occurred while questions load", e);
         }
         return questions;
     }

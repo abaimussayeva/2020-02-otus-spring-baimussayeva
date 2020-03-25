@@ -1,10 +1,8 @@
-package ru.otus.spring.hw.service.test;
-
+package ru.otus.spring.hw.util;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import ru.otus.spring.hw.application.business.TestServiceConsole;
 import ru.otus.spring.hw.domain.model.Question;
 import ru.otus.spring.hw.domain.model.Variant;
 
@@ -18,14 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class TestServiceConsoleTest {
-
-    private TestServiceConsole testServiceConsole = new TestServiceConsole();
-
+public class TestUtilTest {
     @ParameterizedTest
     @MethodSource("answersAndQuestions")
     void testEvaluate(List<String> answers, List<Question> questions, int expected) {
-        assertEquals(testServiceConsole.evaluate(answers, questions), expected);
+        assertEquals(expected, TestUtil.evaluate(answers, questions));
     }
 
     static Stream<Arguments> answersAndQuestions() {
@@ -44,7 +39,7 @@ class TestServiceConsoleTest {
     @ParameterizedTest
     @MethodSource("answersAndQuestionsDiff")
     void testEvaluateDiffSize(List<String> answers, List<Question> questions) {
-        assertThrows(IllegalArgumentException.class, () -> testServiceConsole.evaluate(answers, questions));
+        assertThrows(IllegalArgumentException.class, () -> TestUtil.evaluate(answers, questions));
     }
 
     static Stream<Arguments> answersAndQuestionsDiff() {

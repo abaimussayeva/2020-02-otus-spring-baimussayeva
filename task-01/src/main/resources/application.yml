@@ -1,0 +1,10 @@
+application:
+  questionFiles:
+    en_US: questions_en_US.csv
+    kk_KZ: questions_kk_KZ.csv
+    ru_RU: questions_ru_RU.csv
+  locales:
+    en: en-US
+    kk: kk-KZ
+    ru: ru-RU
+    fr: fr-FR

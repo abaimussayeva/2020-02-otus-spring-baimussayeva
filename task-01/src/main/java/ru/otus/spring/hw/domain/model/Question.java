@@ -45,8 +45,4 @@ public class Question {
         builder.delete(builder.length() - 1, builder.length());
         return builder.toString();
     }
-
-
-
-
 }

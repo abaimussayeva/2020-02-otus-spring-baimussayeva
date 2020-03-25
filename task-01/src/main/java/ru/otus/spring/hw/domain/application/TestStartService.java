@@ -1,9 +1,7 @@
 package ru.otus.spring.hw.domain.application;
 
-import java.io.IOException;
+import ru.otus.spring.hw.domain.errors.QuestionLoadException;
 
 public interface TestStartService {
-
-    void startTest() throws IOException;
-
+    void startTest() throws QuestionLoadException;
 }

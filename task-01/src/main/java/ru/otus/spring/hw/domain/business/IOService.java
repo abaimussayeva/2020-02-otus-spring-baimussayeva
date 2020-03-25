@@ -15,6 +15,9 @@ public interface IOService {
     void printSuccess(String message);
     void printInfo(String message);
 
+    /**
+     * Код заимствован из статьи https://medium.com/agency04/developing-cli-application-with-spring-shell-part-2-4be6ce252678
+     */
     default String selectFromList(String headingMessage, String promptMessage,
                                   Map<String, String> options, String defaultValue) {
         String answer;

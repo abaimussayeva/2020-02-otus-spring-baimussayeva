@@ -1,6 +1,8 @@
 package ru.otus.spring.hw.application.shell;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -9,8 +11,8 @@ import ru.otus.spring.hw.domain.business.IOService;
 import ru.otus.spring.hw.domain.business.dao.QuestionsDao;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
 import ru.otus.spring.hw.domain.business.login.SignInService;
-import ru.otus.spring.hw.domain.business.test.TestService;
 import ru.otus.spring.hw.domain.business.test.BaseService;
+import ru.otus.spring.hw.domain.business.test.TestService;
 import ru.otus.spring.hw.domain.errors.QuestionLoadException;
 import ru.otus.spring.hw.domain.model.Person;
 import ru.otus.spring.hw.domain.model.Question;
@@ -22,6 +24,8 @@ import java.util.Optional;
 @ShellComponent
 @RequiredArgsConstructor
 public class AppCommands {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppCommands.class);
 
     private final SignInService signInService;
 
@@ -53,6 +57,8 @@ public class AppCommands {
                     testService.getPrintResult(answers, questions));
         } catch (QuestionLoadException e) {
             ioService.printError(e.getMessage());
+            ioService.printError("Please send log file to admin to fix the problem");
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

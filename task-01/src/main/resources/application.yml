@@ -8,3 +8,14 @@ application:
     kk: kk-KZ
     ru: ru-RU
     fr: fr-FR
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED
+
+spring:
+  shell:
+    interactive:
+      enabled: true

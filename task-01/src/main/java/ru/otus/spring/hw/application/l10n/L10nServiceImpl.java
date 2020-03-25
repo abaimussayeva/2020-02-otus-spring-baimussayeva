@@ -3,31 +3,31 @@ package ru.otus.spring.hw.application.l10n;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.hw.application.config.LocaleProps;
-import ru.otus.spring.hw.domain.business.IOService;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
 
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class L10nServiceImpl implements L10nService {
 
     private final LocaleProps localeProps;
     private final MessageSource messageSource;
-    private final IOService ioService;
 
-    public L10nServiceImpl(LocaleProps localeProps, MessageSource messageSource, IOService ioService) {
+    public L10nServiceImpl(LocaleProps localeProps, MessageSource messageSource) {
         this.localeProps = localeProps;
         this.messageSource = messageSource;
-        this.ioService = ioService;
     }
 
     @Override
-    public void chooseLocale() {
-        ioService.out(getMessage("welcome"));
-        ioService.out(getMessage("choose_locale"));
-        localeProps.getLocales().keySet().forEach(l -> ioService.out("* " + l));
-        String locale = localeProps.getLocales().getOrDefault(ioService.readString().toLowerCase(), localeProps.getDefaultLocale());
-        localeProps.setLocale(Locale.forLanguageTag(locale));
+    public Map<String, String> availableLocales() {
+        return localeProps.getLocales();
+    }
+
+    @Override
+    public void chooseLocale(String locale) {
+        String localeTag = localeProps.getLocales().getOrDefault(locale, localeProps.getDefaultLocale());
+        localeProps.setLocale(Locale.forLanguageTag(localeTag));
     }
 
     @Override

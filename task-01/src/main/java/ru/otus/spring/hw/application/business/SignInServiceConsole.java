@@ -1,28 +1,28 @@
 package ru.otus.spring.hw.application.business;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.hw.domain.business.IOService;
-import ru.otus.spring.hw.domain.business.l10n.L10nService;
+import ru.otus.spring.hw.application.config.UserProps;
 import ru.otus.spring.hw.domain.business.login.SignInService;
 import ru.otus.spring.hw.domain.model.Person;
+
+import java.util.Optional;
 
 @Service
 public class SignInServiceConsole implements SignInService {
 
-    private final L10nService l10nService;
-    private final IOService ioService;
+    private final UserProps userProps;
 
-    public SignInServiceConsole(L10nService l10nService, IOService ioService) {
-        this.l10nService = l10nService;
-        this.ioService = ioService;
+    public SignInServiceConsole(UserProps userProps) {
+        this.userProps = userProps;
     }
 
     @Override
-    public Person signIn() {
-        ioService.out(l10nService.getMessage("enter_name"));
-        String name = ioService.readString();
-        ioService.out(l10nService.getMessage("enter_lastname"));
-        String lastName = ioService.readString();
-        return new Person(name, lastName);
+    public void signIn(String firstName, String lastName) {
+        userProps.setLoggedUser(new Person(firstName, lastName));
+    }
+
+    @Override
+    public Optional<Person> getLoggedUser() {
+        return userProps.getLoggedUser() != null ? Optional.of(userProps.getLoggedUser()) : Optional.empty();
     }
 }

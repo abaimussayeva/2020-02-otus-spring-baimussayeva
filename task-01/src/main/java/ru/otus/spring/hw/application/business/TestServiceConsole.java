@@ -6,7 +6,7 @@ import ru.otus.spring.hw.domain.business.IOService;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
 import ru.otus.spring.hw.domain.business.test.TestService;
 import ru.otus.spring.hw.domain.model.Question;
-import ru.otus.spring.hw.util.OutColors;
+import ru.otus.spring.hw.util.PromptColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,9 @@ public class TestServiceConsole implements TestService {
         List<String> answers = new ArrayList<>();
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
-            ioService.out(i + 1 + ". " + question.getPrintQuestion());
-            answers.add(ioService.readString());
+            String answer = ioService.selectFromList(i + 1 + ". " + question.getQuestion(),
+                    l10nService.getMessage("choose"), question.getAnswers(), null);
+            answers.add(answer);
         }
         return answers;
     }
@@ -43,9 +44,9 @@ public class TestServiceConsole implements TestService {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < answers.size(); i ++) {
             if (answers.get(i).equals(questions.get(i).getAnswer())) {
-                builder.append(OutColors.ANSI_GREEN);
+                builder.append(PromptColor.GREEN.getConsoleValue());
             } else {
-                builder.append(OutColors.ANSI_RED);
+                builder.append(PromptColor.RED.getConsoleValue());
             }
             builder.append(i+1).append(". ").append(questions.get(i).getPrintQuestion()).append("\n");
             builder.append(l10nService.getMessage("question_analysis", questions.get(i).getAnswer(), answers.get(i)));

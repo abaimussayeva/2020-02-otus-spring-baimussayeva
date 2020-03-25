@@ -53,7 +53,7 @@ class QuestionsDaoUnitTest {
         props.setQuestionFiles(Collections.singletonMap("en_US", "test-file.csv"));
         LocaleProps localeProps = new LocaleProps(props);
         QuestionsDaoCsv questionsDaoCsv = new QuestionsDaoCsv(localeProps);
-        assertThrows(QuestionLoadException.class, () -> questionsDaoCsv.getQuestions(), "Error occurred while questions load");
+        assertThrows(QuestionLoadException.class, questionsDaoCsv::getQuestions, "Error occurred while questions load");
     }
 
     @Test
@@ -63,6 +63,6 @@ class QuestionsDaoUnitTest {
         props.setQuestionFiles(Collections.singletonMap("en_US", "test-no-resource.csv"));
         LocaleProps localeProps = new LocaleProps(props);
         QuestionsDaoCsv questionsDaoCsv = new QuestionsDaoCsv(localeProps);
-        assertThrows(QuestionLoadException.class, () -> questionsDaoCsv.getQuestions(), "Error occurred while questions load");
+        assertThrows(QuestionLoadException.class, questionsDaoCsv::getQuestions, "Error occurred while questions load");
     }
 }

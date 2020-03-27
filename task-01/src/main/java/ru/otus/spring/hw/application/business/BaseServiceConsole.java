@@ -1,6 +1,6 @@
 package ru.otus.spring.hw.application.business;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.hw.domain.business.IOService;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
@@ -8,7 +8,7 @@ import ru.otus.spring.hw.domain.business.login.SignInService;
 import ru.otus.spring.hw.domain.business.test.BaseService;
 import ru.otus.spring.hw.domain.model.Person;
 
-@Controller
+@Service
 public class BaseServiceConsole implements BaseService {
 
     private final SignInService signInService;

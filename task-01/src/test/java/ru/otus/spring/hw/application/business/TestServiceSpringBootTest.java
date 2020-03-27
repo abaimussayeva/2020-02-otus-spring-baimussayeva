@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -33,7 +34,11 @@ public class TestServiceSpringBootTest {
 
     @Test
     void answerTest() throws QuestionLoadException {
-        when(ioService.readString()).thenReturn("A").thenReturn("B").thenReturn("C").thenReturn("D");
+        when(ioService.selectFromList(any(), any(), any(), any()))
+                .thenAnswer(invocationOnMock -> "A")
+                .thenAnswer(invocationOnMock -> "B")
+                .thenAnswer(invocationOnMock -> "C")
+                .thenAnswer(invocationOnMock -> "D");
         List<Question> questions = questionsDao.getQuestions();
         List<String> answers = testService.answerTheQuestions(questions);
         assertLinesMatch(Arrays.asList("A", "B", "C", "D"), answers);

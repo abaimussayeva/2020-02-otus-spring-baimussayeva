@@ -45,4 +45,12 @@ public class Question {
         builder.delete(builder.length() - 1, builder.length());
         return builder.toString();
     }
+
+    public Map<String, String> getAnswers() {
+        Map<String, String> map = new TreeMap<>();
+        for (Variant v: Variant.values()) {
+            map.put(v.name(), getVariant(v));
+        }
+        return map;
+    }
 }

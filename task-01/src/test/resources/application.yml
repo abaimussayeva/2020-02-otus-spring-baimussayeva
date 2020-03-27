@@ -8,3 +8,7 @@ application:
     kk: kk-KZ
     ru: ru-RU
     fr: fr-FR
+spring:
+  shell:
+    interactive:
+      enabled: false

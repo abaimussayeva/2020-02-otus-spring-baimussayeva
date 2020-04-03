@@ -1,0 +1,14 @@
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED
+
+spring:
+  shell:
+    interactive:
+      enabled: true
+  datasource:
+    data: classpath:data.sql
+    schema: classpath:schema.sql

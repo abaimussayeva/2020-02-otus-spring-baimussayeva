@@ -36,18 +36,22 @@ public class IOServiceShell implements IOService {
         return lineReader.readLine(prompt + ": ");
     }
 
+    @Override
     public void printSuccess(String message) {
         print(message, PromptColor.valueOf(outProps.getSuccess()));
     }
 
+    @Override
     public void printWarning(String message) {
         print(message, PromptColor.valueOf(outProps.getWarning()));
     }
 
+    @Override
     public void printError(String message) {
         print(message, PromptColor.valueOf(outProps.getError()));
     }
 
+    @Override
     public void printInfo(String message) {
         print(message, PromptColor.valueOf(outProps.getInfo()));
     }

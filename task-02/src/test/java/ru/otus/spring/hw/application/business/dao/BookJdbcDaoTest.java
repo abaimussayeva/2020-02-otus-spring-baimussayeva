@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.hw.domain.business.IOService;
+import ru.otus.spring.hw.domain.business.dao.BookAuthorsDao;
 import ru.otus.spring.hw.domain.business.services.BaseService;
 import ru.otus.spring.hw.domain.model.Book;
 import ru.otus.spring.hw.domain.model.entity.BookEntity;
@@ -19,19 +20,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Dao для работы с книгами должно")
 @JdbcTest
-@Import({BookJdbcDao.class, AuthorJdbcDao.class, GenreJdbcDao.class, LangJdbcDao.class})
+@Import({BookJdbcDao.class, BookAuthorsJdbcDao.class})
 class BookJdbcDaoTest {
 
     @Autowired
     private BookJdbcDao dao;
 
     @Autowired
+    private BookAuthorsDao bookAuthorsDao;
+
+    @MockBean
     private AuthorJdbcDao authorDao;
 
-    @Autowired
+    @MockBean
     private GenreJdbcDao genreDao;
 
-    @Autowired
+    @MockBean
     private LangJdbcDao langDao;
 
     @MockBean

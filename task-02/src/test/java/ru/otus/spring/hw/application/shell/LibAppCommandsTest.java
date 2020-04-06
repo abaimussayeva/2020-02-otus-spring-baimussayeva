@@ -14,6 +14,7 @@ import ru.otus.spring.hw.domain.business.dao.AuthorDao;
 import ru.otus.spring.hw.domain.business.dao.BookDao;
 import ru.otus.spring.hw.domain.business.dao.GenreDao;
 import ru.otus.spring.hw.domain.business.dao.LangDao;
+import ru.otus.spring.hw.domain.business.l10n.L10nService;
 import ru.otus.spring.hw.domain.business.services.BaseService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.*;
@@ -34,6 +35,12 @@ class LibAppCommandsTest {
 
     @Autowired
     private Shell shell;
+
+    @Autowired
+    private L10nService l10nService;
+
+    @Autowired
+    private EditTypeUtil editTypeUtil;
 
     @MockBean
     private IOService ioService;
@@ -102,7 +109,7 @@ class LibAppCommandsTest {
         when(baseService.addBook(any(BookEntity.class))).thenReturn(new BookDto(1, "Новая книга", "Худ. лит-ра", "ru", "Энн Бронте"));
         shell.evaluate(() -> COMMAND_ADD);
         verify(baseService, times(1)).addBook(any(BookEntity.class));
-        verify(ioService, times(1)).printSuccess(Messages.BOOK_ADDED);
+        verify(ioService, times(1)).printSuccess(l10nService.getMessage("book_added"));
         verify(ioService, times(5)).printKeyValue(anyString(), anyString());
     }
 
@@ -119,7 +126,7 @@ class LibAppCommandsTest {
                 .thenAnswer(mock -> "1");
         shell.evaluate(() -> COMMAND_REMOVE);
         verify(baseService, times(1)).removeBook(anyLong());
-        verify(ioService, times(1)).printSuccess(Messages.BOOK_REMOVED);
+        verify(ioService, times(1)).printSuccess(l10nService.getMessage("book_removed"));
     }
 
     @DisplayName(" должен не должен вызвать удаление из-за пустого списка найденных книг")
@@ -130,7 +137,7 @@ class LibAppCommandsTest {
         when(baseService.searchBookByName("Джейн Эйр")).thenReturn(Collections.emptyList());
         shell.evaluate(() -> COMMAND_REMOVE);
         verify(baseService, times(0)).removeBook(anyLong());
-        verify(ioService, times(0)).printSuccess(Messages.BOOK_REMOVED);
+        verify(ioService, times(0)).printSuccess(l10nService.getMessage("book_removed"));
     }
 
     @DisplayName(" должен не должен вызвать удаление без подтверждения")
@@ -146,13 +153,13 @@ class LibAppCommandsTest {
                 .thenAnswer(mock -> "0");
         shell.evaluate(() -> COMMAND_REMOVE);
         verify(baseService, times(0)).removeBook(anyLong());
-        verify(ioService, times(0)).printSuccess(Messages.BOOK_REMOVED);
+        verify(ioService, times(0)).printSuccess(l10nService.getMessage("book_removed"));
     }
 
     static Stream<Arguments> confirmYesNo() {
         return Stream.of(
-                arguments("1", 1, 5, Messages.CHANGES_ACCEPTED),
-                arguments("0", 0, 0, Messages.CHANGES_NOT_ACCEPTED)
+                arguments("1", 1, 5, "Изменения сохранены"),
+                arguments("0", 0, 0, "Изменения не сохранены")
         );
     }
 

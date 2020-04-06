@@ -1,3 +1,8 @@
+application:
+  locales:
+    ru: ru-RU
+    en: en-US
+    kk: kk-KZ
 shell:
   out:
     info: CYAN

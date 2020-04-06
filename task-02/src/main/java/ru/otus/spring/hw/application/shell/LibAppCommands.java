@@ -11,6 +11,7 @@ import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.hw.domain.business.IOService;
+import ru.otus.spring.hw.domain.business.l10n.L10nService;
 import ru.otus.spring.hw.domain.business.services.BaseService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.*;
@@ -29,6 +30,15 @@ public class LibAppCommands {
 
     private final IOService ioService;
     private final BaseService baseService;
+    private final L10nService l10nService;
+    private final EditTypeUtil editTypeUtil;
+
+    @ShellMethod(value = "Изменить локаль", key = {"locale"})
+    public void locale() {
+        String locale = ioService.selectFromList(l10nService.getMessage("locale"), l10nService.getMessage("choose"),
+                l10nService.availableLocales(), null);
+        l10nService.chooseLocale(locale);
+    }
 
     @ShellMethod(value = "Показать все книги", key = {"books", "all"})
     public void allBooks() {
@@ -41,11 +51,11 @@ public class LibAppCommands {
             return;
         }
         LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
-        headers.put("bookId", Messages.BOOK_ID);
-        headers.put("name", Messages.BOOK_NAME);
-        headers.put("authors", Messages.AUTHOR);
-        headers.put("genre", Messages.GENRE);
-        headers.put("language", Messages.LANG);
+        headers.put("bookId", l10nService.getMessage("book_id"));
+        headers.put("name", l10nService.getMessage("book_name"));
+        headers.put("authors", l10nService.getMessage("author"));
+        headers.put("genre", l10nService.getMessage("genre"));
+        headers.put("language", l10nService.getMessage("lang"));
         TableModel model = new BeanListTableModel<>(books, headers);
         TableBuilder tableBuilder = new TableBuilder(model);
         tableBuilder.addInnerBorder(BorderStyle.fancy_light);
@@ -57,7 +67,7 @@ public class LibAppCommands {
     public void search() {
         List<Book> books;
         try {
-            String search = ioService.readString(Messages.SEARCH_BOOK);
+            String search = ioService.readString(l10nService.getMessage("search_book"));
             books = baseService.searchBookByName(search);
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
@@ -82,7 +92,7 @@ public class LibAppCommands {
                     bookGenreId,
                     bookLangId,
                     bookAuthors));
-            ioService.printSuccess(Messages.BOOK_ADDED);
+            ioService.printSuccess(l10nService.getMessage("book_added"));
             showBook(bookDto);
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
@@ -97,13 +107,15 @@ public class LibAppCommands {
             if (book.isEmpty()) {
                 return;
             }
-            boolean delete = ioService.selectFromList(String.format(Messages.REMOVE_BOOK_CONFIRM, book.get().getName()), Messages.CHOOSE_Y_N,
-                    Map.of(Messages.Y, Messages.YES, Messages.N, Messages.NO), null).equals(Messages.Y);
+            boolean delete = ioService.selectFromList(l10nService.getMessage("remove_book_confirm", book.get().getName()),
+                    l10nService.getMessage("choose_y_n"),
+                    Map.of(Messages.Y, l10nService.getMessage("yes"),
+                           Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             if (delete) {
                 baseService.removeBook(book.get().getBookId());
-                ioService.printSuccess(Messages.BOOK_REMOVED);
+                ioService.printSuccess(l10nService.getMessage("book_removed"));
             } else {
-                ioService.printWarning(Messages.BOOK_NOT_REMOVED);
+                ioService.printWarning(l10nService.getMessage("book_not_removed"));
             }
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
@@ -123,18 +135,18 @@ public class LibAppCommands {
             Long bookGenreId = current.getGenre().getGenreId();
             Long bookLangId = current.getLang().getLangId();
             List<Long> bookAuthors = current.getAuthors().stream().map(Author::getAuthorId).collect(Collectors.toList());
-            Map<String, String> editTypes = EditType.getEditTypeMap();
+            Map<String, String> editTypes = editTypeUtil.getEditTypeMap();
             boolean edit = true;
             while (edit) {
-                String selectedType = ioService.selectFromList(Messages.CHOOSE_FIELD_TO_EDIT,
-                        Messages.CHOOSE_FIELD_TO_EDIT, editTypes, null);
-                EditType type = EditType.getTypeByOrder(selectedType);
+                String selectedType = ioService.selectFromList(l10nService.getMessage("choose_field_to_edit"),
+                        l10nService.getMessage("choose_field_to_edit"), editTypes, null);
+                EditType type = editTypeUtil.getTypeByOrder(selectedType);
                 switch (type) {
                     case name:
                         bookName = enterName();
                         break;
                     case authors:
-                        ioService.printWarning(Messages.AUTHORS_WARNING);
+                        ioService.printWarning(l10nService.getMessage("author_warning"));
                         bookAuthors = chooseAuthors();
                         break;
                     case genre:
@@ -146,18 +158,20 @@ public class LibAppCommands {
                 }
                 editTypes.remove(String.valueOf(type.getOrder()));
                 edit = !editTypes.isEmpty() &&
-                        ioService.selectFromList(Messages.CHANGE_OTHER_FIELDS, Messages.CHOOSE_Y_N,
-                                Map.of(Messages.Y, Messages.YES, Messages.N, Messages.NO), null).equals(Messages.Y);
+                        ioService.selectFromList(l10nService.getMessage("change_other_fields"), l10nService.getMessage("choose_y_n"),
+                                Map.of(Messages.Y, l10nService.getMessage("yes"),
+                                       Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             }
-            boolean accept = ioService.selectFromList(Messages.EDIT_COMFIRM, Messages.CHOOSE_Y_N,
-                    Map.of(Messages.Y, Messages.YES, Messages.N, Messages.NO), null).equals(Messages.Y);
+            boolean accept = ioService.selectFromList(l10nService.getMessage("edit_confirm"), l10nService.getMessage("choose_y_n"),
+                    Map.of(Messages.Y, l10nService.getMessage("yes"),
+                            Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             if (accept) {
                 BookDto bookDto;
                 bookDto = baseService.editBook(new BookEntity(current.getBookId(), bookName, bookGenreId, bookLangId, bookAuthors));
-                ioService.printSuccess(Messages.CHANGES_ACCEPTED);
+                ioService.printSuccess(l10nService.getMessage("changes_accepted"));
                 showBook(bookDto);
             } else {
-                ioService.printWarning(Messages.CHANGES_NOT_ACCEPTED);
+                ioService.printWarning(l10nService.getMessage("changes_not_accepted"));
             }
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
@@ -166,23 +180,23 @@ public class LibAppCommands {
     }
 
     private void showBook(BookDto bookDto) {
-        ioService.printKeyValue(Messages.BOOK_ID, String.valueOf(bookDto.getBookId()));
-        ioService.printKeyValue(Messages.BOOK_NAME, bookDto.getName());
-        ioService.printKeyValue(Messages.AUTHOR, bookDto.getAuthors());
-        ioService.printKeyValue(Messages.GENRE, bookDto.getGenre());
-        ioService.printKeyValue(Messages.LANG, bookDto.getLanguage());
+        ioService.printKeyValue(l10nService.getMessage("book_id"), String.valueOf(bookDto.getBookId()));
+        ioService.printKeyValue(l10nService.getMessage("book_name"), bookDto.getName());
+        ioService.printKeyValue(l10nService.getMessage("author"), bookDto.getAuthors());
+        ioService.printKeyValue(l10nService.getMessage("genre"), bookDto.getGenre());
+        ioService.printKeyValue(l10nService.getMessage("lang"), bookDto.getLanguage());
     }
 
     private Optional<Book> chooseBook() throws DBOperationException {
-        String search = ioService.readString(Messages.SEARCH_BOOK);
+        String search = ioService.readString(l10nService.getMessage("search_book"));
         List<Book> books = baseService.searchBookByName(search);
         if (books.isEmpty()) {
-            ioService.printWarning(Messages.NO_BOOKS);
+            ioService.printWarning(l10nService.getMessage("no_books"));
             return Optional.empty();
         }
         Map<Long, Book> bookMap = books.stream().collect(
                 Collectors.toMap(Book::getBookId, g -> g));
-        Long bookId = ioService.selectLongFromList(Messages.BOOKS, Messages.CHOOSE_BOOK,
+        Long bookId = ioService.selectLongFromList(l10nService.getMessage("books"), l10nService.getMessage("choose_book"),
                 books.stream().collect(
                         Collectors.toMap(Book::getBookId, Book::getName)), null);
         return Optional.of(bookMap.get(bookId));
@@ -191,9 +205,9 @@ public class LibAppCommands {
     private String enterName() {
         String bookName;
         do {
-            bookName = ioService.readString(Messages.BOOK_NAME);
+            bookName = ioService.readString(l10nService.getMessage("book_name"));
             if (!StringUtils.hasText(bookName)) {
-                ioService.printWarning(Messages.ENTER_BOOK_NAME);
+                ioService.printWarning(l10nService.getMessage("enter_book_name"));
             }
         } while (bookName == null);
         return bookName;
@@ -201,7 +215,7 @@ public class LibAppCommands {
 
     private Long chooseLang() throws DBOperationException {
         List<Lang> langs = baseService.getLangs();
-        return ioService.selectLongFromList(Messages.LANG, Messages.CHOOSE_LANG,
+        return ioService.selectLongFromList(l10nService.getMessage("lang"), l10nService.getMessage("choose_lang"),
                 langs.stream().collect(
                         Collectors.toMap(Lang::getLangId, Lang::getName)), null);
     }
@@ -213,7 +227,7 @@ public class LibAppCommands {
                 Collectors.toMap(Genre::getGenreId, g -> g));
         boolean chooseGenre;
         do {
-            bookGenreId = ioService.selectLongFromList(Messages.GENRE, Messages.CHOOSE_GENRE,
+            bookGenreId = ioService.selectLongFromList(l10nService.getMessage("genre"), l10nService.getMessage("choose_genre"),
                     genres.stream().collect(
                             Collectors.toMap(Genre::getGenreId, Genre::getName)), null);
             Genre selectedGenre = genreMap.get(bookGenreId);
@@ -221,8 +235,9 @@ public class LibAppCommands {
                 genres = selectedGenre.getChildren();
                 genreMap = genres.stream().collect(
                         Collectors.toMap(Genre::getGenreId, g -> g));
-                chooseGenre = ioService.selectFromList(Messages.PRECISE_GENRE, Messages.CHOOSE_Y_N,
-                        Map.of(Messages.Y, Messages.YES, Messages.N, Messages.NO), null).equals(Messages.Y);
+                chooseGenre = ioService.selectFromList(l10nService.getMessage("precise_genre"), l10nService.getMessage("choose_y_n"),
+                        Map.of(Messages.Y, l10nService.getMessage("yes"),
+                               Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             } else {
                 chooseGenre = false;
             }
@@ -235,12 +250,13 @@ public class LibAppCommands {
         List<Author> authors = baseService.getAuthors();
         boolean addAuthor = true;
         while (addAuthor) {
-            Long authorId = ioService.selectLongFromList(Messages.AUTHOR, Messages.CHOOSE_AUTHOR,
+            Long authorId = ioService.selectLongFromList(l10nService.getMessage("author"), l10nService.getMessage("choose_author"),
                     authors.stream().collect(
                             Collectors.toMap(Author::getAuthorId, Author::getName)), null);
             bookAuthors.add(authorId);
-            addAuthor = ioService.selectFromList(Messages.ADD_MORE_AUTHOR, Messages.CHOOSE_Y_N,
-                    Map.of(Messages.Y, Messages.YES, Messages.N, Messages.NO), null).equalsIgnoreCase(Messages.Y);
+            addAuthor = ioService.selectFromList(l10nService.getMessage("add_more_author"), l10nService.getMessage("choose_y_n"),
+                    Map.of(Messages.Y, l10nService.getMessage("yes"),
+                           Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             if (addAuthor) {
                 authors = authors.stream()
                         .filter(author -> !bookAuthors.contains(author.getAuthorId()))

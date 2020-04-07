@@ -1,7 +1,6 @@
 package ru.otus.spring.hw.domain.business;
 
 import org.springframework.util.StringUtils;
-import ru.otus.spring.hw.domain.model.entity.BookEntity;
 import ru.otus.spring.hw.util.StringUtil;
 
 import java.util.HashSet;
@@ -59,7 +58,7 @@ public interface IOService {
             }
         } while (answer != null && !allowedAnswers.contains(answer));
 
-        if (StringUtils.isEmpty(answer) && allowedAnswers.contains(BookEntity.NEW_BOOK_ID)) {
+        if (StringUtils.isEmpty(answer) && allowedAnswers.contains(0L)) {
             return defaultValue;
         }
         return answer;

@@ -36,9 +36,12 @@ insert into genres(genre_id, name, parent_id) values(15, 'Дизайн прог�
 
 insert into books(book_id, name, genre_id, lang_id) values(1, 'Джейн Эйр', 2, 1);
 insert into book_authors(book_id, author_id) values(1, 1);
+insert into book_comments(comment_id, book_id, comment) values(1, 1, 'Интересная книга');
+insert into book_comments(comment_id, book_id, comment) values(2, 1, 'Рекомендую к прочтению');
 
 insert into books(book_id, name, genre_id, lang_id) values(2, 'Jane Eyre', 2, 2);
 insert into book_authors(book_id, author_id) values(2, 1);
+insert into book_comments(comment_id, book_id, comment) values(3, 2, 'Interesting book');
 
 insert into books(book_id, name, genre_id, lang_id) values(3, 'Крошка Доррит', 2, 1);
 insert into book_authors(book_id, author_id) values(3, 2);

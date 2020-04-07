@@ -1,35 +1,34 @@
 package ru.otus.spring.hw.application.business.services;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.hw.domain.business.dao.AuthorDao;
-import ru.otus.spring.hw.domain.business.dao.BookDao;
-import ru.otus.spring.hw.domain.business.dao.GenreDao;
-import ru.otus.spring.hw.domain.business.dao.LangDao;
-import ru.otus.spring.hw.domain.business.services.BaseService;
+import ru.otus.spring.hw.domain.business.dao.*;
+import ru.otus.spring.hw.domain.business.services.LibraryService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Author;
 import ru.otus.spring.hw.domain.model.Book;
-import ru.otus.spring.hw.domain.model.Genre;
+import ru.otus.spring.hw.domain.model.Comment;
 import ru.otus.spring.hw.domain.model.Lang;
 import ru.otus.spring.hw.domain.model.dto.BookDto;
-import ru.otus.spring.hw.domain.model.entity.BookEntity;
+import ru.otus.spring.hw.domain.model.dto.GenreDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BaseServiceImpl implements BaseService {
+public class LibraryServiceImpl implements LibraryService {
 
     private final BookDao bookDao;
     private final AuthorDao authorDao;
     private final GenreDao genreDao;
     private final LangDao langDao;
+    private final CommentDao commentDao;
 
-    public BaseServiceImpl(BookDao bookDao, AuthorDao authorDao, GenreDao genreDao, LangDao langDao) {
+    public LibraryServiceImpl(BookDao bookDao, AuthorDao authorDao, GenreDao genreDao, LangDao langDao, CommentDao commentDao) {
         this.bookDao = bookDao;
         this.authorDao = authorDao;
         this.genreDao = genreDao;
         this.langDao = langDao;
+        this.commentDao = commentDao;
     }
 
     @Override
@@ -45,21 +44,12 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-    public BookDto addBook(BookEntity book) throws DBOperationException {
+    public BookDto save(Book book) throws DBOperationException {
         try {
-            Book inserted = bookDao.insert(book);
+            Book inserted = bookDao.save(book);
             return inserted.toDto();
         } catch (Exception e) {
             throw new DBOperationException("Insert book error", e);
-        }
-    }
-
-    @Override
-    public BookDto editBook(BookEntity book) throws DBOperationException {
-        try {
-            return bookDao.update(book).toDto();
-        } catch (Exception e) {
-            throw new DBOperationException("Update book error", e);
         }
     }
 
@@ -91,9 +81,9 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-    public List<Genre> getGenres() throws DBOperationException {
+    public List<GenreDto> getGenres() throws DBOperationException {
         try {
-            return genreDao.getAll();
+            return genreDao.getAllTree();
         } catch (Exception e) {
             throw new DBOperationException("Genres get error", e);
         }
@@ -105,6 +95,24 @@ public class BaseServiceImpl implements BaseService {
             return authorDao.getAll();
         } catch (Exception e) {
             throw new DBOperationException("Authors get error", e);
+        }
+    }
+
+    @Override
+    public Comment addComment(long bookId, String comment) throws DBOperationException {
+        try {
+            return commentDao.addComment(new Comment(bookId, comment));
+        } catch (Exception e) {
+            throw new DBOperationException("Comment add error", e);
+        }
+    }
+
+    @Override
+    public List<Comment> getComments(long bookId) throws DBOperationException {
+        try {
+            return commentDao.getCommentsForBook(bookId);
+        } catch (Exception e) {
+            throw new DBOperationException("Comments get error", e);
         }
     }
 }

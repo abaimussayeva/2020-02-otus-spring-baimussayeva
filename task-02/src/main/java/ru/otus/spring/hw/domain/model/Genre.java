@@ -1,40 +1,49 @@
 package ru.otus.spring.hw.domain.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "genres")
 public class Genre {
-    private final long genreId;
-    private final String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "genre_id", nullable = false, unique = true)
+    private long genreId;
+
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "parent_id")
+    private Long parentId;
+
+    @Fetch(FetchMode.SUBSELECT)
+    @OneToMany(targetEntity = Genre.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
     private List<Genre> childGenres;
 
-    public Genre(long genreId, String name) {
-        this.genreId = genreId;
+    public Genre(long id, String name) {
+        this.genreId = id;
         this.name = name;
         this.childGenres = new ArrayList<>();
     }
 
-    public long getGenreId() {
-        return genreId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void addChild(Genre genre) {
-        childGenres.add(genre);
-    }
-
-    public void addChildren(List<Genre> genres) {
-        childGenres.addAll(genres);
-    }
-
-    public boolean hasChild() {
-        return !childGenres.isEmpty();
-    }
-
-    public List<Genre> getChildren() {
-        return new ArrayList<>(childGenres);
+    @Override
+    public String toString() {
+        return "Genre{" +
+                "genreId=" + genreId +
+                ", name='" + name + '\'' +
+                ", parentId=" + parentId +
+                '}';
     }
 }

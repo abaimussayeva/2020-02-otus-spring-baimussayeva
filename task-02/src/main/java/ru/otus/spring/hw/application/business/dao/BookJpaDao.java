@@ -1,6 +1,7 @@
 package ru.otus.spring.hw.application.business.dao;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.hw.domain.business.dao.BookDao;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 @Repository
 public class BookJpaDao implements BookDao {
 
@@ -23,6 +24,7 @@ public class BookJpaDao implements BookDao {
     }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Book save(Book book) {
         if (book.getBookId() <= 0) {
             em.persist(book);
@@ -49,12 +51,10 @@ public class BookJpaDao implements BookDao {
     }
 
     @Override
-    public void deleteById(long id) {
-        Query query = em.createQuery("delete " +
-                "from Book b " +
-                "where b.bookId = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void delete(long bookId) {
+        Book book = em.find(Book.class, bookId);
+        em.remove(book);
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.springframework.shell.table.TableModel;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.hw.domain.business.IOService;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
-import ru.otus.spring.hw.domain.business.services.LibraryService;
+import ru.otus.spring.hw.domain.business.services.*;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.*;
 import ru.otus.spring.hw.domain.model.dto.BookDto;
@@ -31,7 +31,11 @@ public class LibAppCommands {
     private static final Logger LOGGER = LoggerFactory.getLogger(LibAppCommands.class);
 
     private final IOService ioService;
-    private final LibraryService baseService;
+    private final BookService bookService;
+    private final AuthorService authorService;
+    private final GenreService genreService;
+    private final LangService langService;
+    private final CommentService commentService;
     private final L10nService l10nService;
     private final EditTypeUtil editTypeUtil;
 
@@ -46,7 +50,7 @@ public class LibAppCommands {
     public void allBooks() {
         List<BookDto> books;
         try {
-            books = baseService.getAllBooks();
+            books = bookService.getAllBooks();
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
             LOGGER.error(e.getMessage(), e);
@@ -70,7 +74,7 @@ public class LibAppCommands {
         List<Book> books;
         try {
             String search = ioService.readString(l10nService.getMessage("search_book"));
-            books = baseService.searchBookByName(search);
+            books = bookService.searchBookByName(search);
         } catch (DBOperationException e) {
             ioService.printError(e.getMessage());
             LOGGER.error(e.getMessage(), e);
@@ -89,7 +93,7 @@ public class LibAppCommands {
             List<Author> bookAuthors = chooseAuthors();
             GenreDto genre = chooseGenre();
             Lang lang = chooseLang();
-            BookDto bookDto = baseService.save(new Book(bookName,
+            BookDto bookDto = bookService.save(new Book(bookName,
                     new Genre(genre.getGenreId(), genre.getName()),
                     lang,
                     bookAuthors));
@@ -113,7 +117,7 @@ public class LibAppCommands {
                     Map.of(Messages.Y, l10nService.getMessage("yes"),
                            Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             if (delete) {
-                baseService.removeBook(book.get().getBookId());
+                bookService.removeBook(book.get().getBookId());
                 ioService.printSuccess(l10nService.getMessage("book_removed"));
             } else {
                 ioService.printWarning(l10nService.getMessage("book_not_removed"));
@@ -164,7 +168,7 @@ public class LibAppCommands {
                     Map.of(Messages.Y, l10nService.getMessage("yes"),
                             Messages.N, l10nService.getMessage("no")), null).equals(Messages.Y);
             if (accept) {
-                BookDto bookDto = baseService.save(current);
+                BookDto bookDto = bookService.save(current);
                 ioService.printSuccess(l10nService.getMessage("changes_accepted"));
                 showBook(bookDto);
             } else {
@@ -183,10 +187,11 @@ public class LibAppCommands {
             if (book.isEmpty()) {
                 return;
             }
-            Book current = book.get();
+            Book current = bookService.getBookById(book.orElseThrow().getBookId());
             String comment = ioService.readString(l10nService.getMessage("enter_comment"));
-            baseService.addComment(current.getBookId(), comment);
-            printComments(current, baseService.getComments(current.getBookId()));
+            Comment newComment = commentService.addComment(current, comment);
+            current.getComments().add(newComment);
+            printComments(current, current.getComments());
         } catch (Exception e) {
             ioService.printError(e.getMessage());
             LOGGER.error(e.getMessage(), e);
@@ -200,9 +205,10 @@ public class LibAppCommands {
             if (book.isEmpty()) {
                 return;
             }
-            Book current = book.get();
-            List<Comment> all = baseService.getComments(current.getBookId());
-            printComments(current, all);
+            //чтобы не делать ui методы транзакционными и не подгружать комменты ко всем книгам,
+            // достаю только одну книгу с подгруженными комментами
+            Book current = bookService.getBookById(book.orElseThrow().getBookId());
+            printComments(current, current.getComments());
         } catch (Exception e) {
             ioService.printError(e.getMessage());
             LOGGER.error(e.getMessage(), e);
@@ -227,7 +233,7 @@ public class LibAppCommands {
 
     private Optional<Book> chooseBook() throws Exception {
         String search = ioService.readString(l10nService.getMessage("search_book"));
-        List<Book> books = baseService.searchBookByName(search);
+        List<Book> books = bookService.searchBookByName(search);
         if (books.isEmpty()) {
             ioService.printWarning(l10nService.getMessage("no_books"));
             return Optional.empty();
@@ -252,7 +258,7 @@ public class LibAppCommands {
     }
 
     private Lang chooseLang() throws DBOperationException {
-        List<Lang> langs = baseService.getLangs();
+        List<Lang> langs = langService.getLangs();
         Map<Long, Lang> langMap = langs.stream().collect(
                 Collectors.toMap(Lang::getLangId, g -> g));
         Long selected = ioService.selectLongFromList(l10nService.getMessage("lang"), l10nService.getMessage("choose_lang"),
@@ -263,7 +269,7 @@ public class LibAppCommands {
 
     private GenreDto chooseGenre() throws DBOperationException {
         GenreDto genre;
-        List<GenreDto> genres = baseService.getGenres();
+        List<GenreDto> genres = genreService.getGenres();
         Map<Long, GenreDto> genreMap = genres.stream().collect(
                 Collectors.toMap(GenreDto::getGenreId, g -> g));
         boolean chooseGenre;
@@ -288,7 +294,7 @@ public class LibAppCommands {
 
     private List<Author> chooseAuthors() throws DBOperationException {
         List<Author> bookAuthors = new ArrayList<>();
-        List<Author> authors = baseService.getAuthors();
+        List<Author> authors = authorService.getAuthors();
         Map<Long, Author> authorMap = authors.stream().collect(
                 Collectors.toMap(Author::getAuthorId, g -> g));
 

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import ru.otus.spring.hw.domain.model.dto.BookDto;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,20 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "author_id"))
     private List<Author> authors;
 
+    @OneToMany(targetEntity = Comment.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinTable(name = "book_comments", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id"))
+    private List<Comment> comments;
+
     public Book(String name, Genre genre, Lang lang, List<Author> authors) {
+        this.name = name;
+        this.genre = genre;
+        this.lang = lang;
+        this.authors = authors;
+    }
+
+    public Book(long id, String name, Genre genre, Lang lang, ArrayList<Author> authors) {
+        this.bookId = id;
         this.name = name;
         this.genre = genre;
         this.lang = lang;

@@ -4,14 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.otus.spring.hw.domain.business.dao.AuthorDao;
 import ru.otus.spring.hw.domain.business.dao.BookDao;
 import ru.otus.spring.hw.domain.business.dao.LangDao;
 import ru.otus.spring.hw.domain.model.Genre;
-import ru.otus.spring.hw.domain.model.dto.GenreDto;
 
 import java.util.List;
 
@@ -21,9 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import({GenreJpaDao.class})
 class GenreJpaDaoTest {
-
-    @Autowired
-    private TestEntityManager em;
 
     @Autowired
     private GenreJpaDao dao;
@@ -42,27 +37,12 @@ class GenreJpaDaoTest {
     void getById() {
         Genre genre = dao.getById(1L).orElseThrow();
         assertThat(genre.getName()).isEqualTo("Художественная литература");
-        assertThat(genre.getChildGenres()).hasSize(6)
-                .allMatch(g -> !g.getName().isEmpty())
-                .allMatch(g -> g.getParentId() == genre.getGenreId());
-    }
-
-    @DisplayName(" вернуть дерево жанров")
-    @Test
-    void getAllTree() {
-        List<GenreDto> genres = dao.getAllTree();
-        assertThat(genres).hasSize(3)
-                .allMatch(g -> !g.getName().isEmpty())
-                .allMatch(g -> !g.getChildGenres().isEmpty());
-        assertThat(genres.get(0).getChildGenres()).hasSize(6);
-        assertThat(genres.get(1).getChildGenres().get(0).getChildGenres()).hasSize(2);
-        assertThat(genres.get(2).getChildGenres().get(0).getChildGenres()).hasSize(2);
     }
 
     @DisplayName(" вернуть список жанров без иерархии")
     @Test
     void getAllFlat() {
-        List<GenreDto> genres = dao.getAllFlat();
+        List<Genre> genres = dao.getAll();
         assertThat(genres).hasSize(15)
                 .allMatch(g -> !g.getName().isEmpty());
     }

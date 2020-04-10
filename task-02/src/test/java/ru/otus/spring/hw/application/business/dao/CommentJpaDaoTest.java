@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import ru.otus.spring.hw.domain.model.Book;
 import ru.otus.spring.hw.domain.model.Comment;
 
 import javax.persistence.PersistenceException;
@@ -35,7 +36,8 @@ class CommentJpaDaoTest {
     @DisplayName("Добавить  комментарий ")
     @Test
     void addComment() {
-        Comment comment = new Comment(10L, "Some new comment");
+        Book book = em.find(Book.class, 10L);
+        Comment comment = new Comment(book.getBookId(), "Some new comment");
         comment = dao.addComment(comment);
         assertThat(comment.getBookId()).isNotEqualTo(0L);
     }
@@ -43,13 +45,14 @@ class CommentJpaDaoTest {
     @DisplayName("Вернуть ошибку о нарушении внешнего ключа ")
     @Test
     void addCommentWithConstaintError() {
+        Book book = em.find(Book.class, 55L);
         Comment comment = new Comment(55L, "Some new comment");
         assertThrows(PersistenceException.class, () -> dao.addComment(comment));
     }
 
     @Test
     void getCommentsForBook() {
-        List<Comment> comments = dao.getCommentsForBook(1L);
+        List<Comment> comments = em.find(Book.class, 1L).getComments();
         assertThat(comments).hasSize(2)
                 .allMatch(c -> !c.getComment().isEmpty())
                 .allMatch(c -> c.getBookId() == 1L);

@@ -15,7 +15,10 @@ import ru.otus.spring.hw.domain.business.dao.BookDao;
 import ru.otus.spring.hw.domain.business.dao.GenreDao;
 import ru.otus.spring.hw.domain.business.dao.LangDao;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
-import ru.otus.spring.hw.domain.business.services.LibraryService;
+import ru.otus.spring.hw.domain.business.services.AuthorService;
+import ru.otus.spring.hw.domain.business.services.BookService;
+import ru.otus.spring.hw.domain.business.services.GenreService;
+import ru.otus.spring.hw.domain.business.services.LangService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Author;
 import ru.otus.spring.hw.domain.model.Book;
@@ -50,7 +53,16 @@ class LibAppCommandsTest {
     private IOService ioService;
 
     @MockBean
-    private LibraryService baseService;
+    private BookService baseService;
+
+    @MockBean
+    private AuthorService authorService;
+
+    @MockBean
+    private GenreService genreService;
+
+    @MockBean
+    private LangService langService;
 
     @MockBean
     private BookDao bookDao;
@@ -95,13 +107,13 @@ class LibAppCommandsTest {
     @DisplayName(" должен вызвать метод создания книги")
     @Test
     void create() throws DBOperationException {
-        when(baseService.getAuthors()).thenReturn(List.of(
+        when(authorService.getAuthors()).thenReturn(List.of(
                 new Author(1L, "Шарлотта Бронте", ""),
                 new Author(2L, "Энн Бронте", "")));
-        when(baseService.getGenres()).thenReturn(List.of(
+        when(genreService.getGenres()).thenReturn(List.of(
                 new GenreDto(1L, "Худ. лит-ра"),
                 new GenreDto(2L, "Наука")));
-        when(baseService.getLangs()).thenReturn(List.of(
+        when(langService.getLangs()).thenReturn(List.of(
                 new Lang(1L, "ru"),
                 new Lang(2L, "en")));
         when(ioService.readString(anyString())).thenAnswer(mock -> "Новая книга");
@@ -176,13 +188,13 @@ class LibAppCommandsTest {
                 .thenAnswer(mock -> "Джейн Эйр");
         when(baseService.searchBookByName(anyString())).thenReturn(List.of(
                 new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"), new ArrayList<>())));
-        when(baseService.getAuthors()).thenReturn(List.of(
+        when(authorService.getAuthors()).thenReturn(List.of(
                 new Author(1L, "Шарлотта Бронте", ""),
                 new Author(2L, "Энн Бронте", "")));
-        when(baseService.getGenres()).thenReturn(List.of(
+        when(genreService.getGenres()).thenReturn(List.of(
                 new GenreDto(1L, "Худ. лит-ра"),
                 new GenreDto(2L, "Наука")));
-        when(baseService.getLangs()).thenReturn(List.of(
+        when(langService.getLangs()).thenReturn(List.of(
                 new Lang(1L, "ru"),
                 new Lang(2L, "en")));
         when(ioService.readString(anyString())).thenAnswer(mock -> "Измененное название");

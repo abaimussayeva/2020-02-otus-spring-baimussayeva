@@ -1,6 +1,7 @@
 package ru.otus.spring.hw.application.business.dao;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.hw.domain.business.dao.CommentDao;
 import ru.otus.spring.hw.domain.model.Comment;
@@ -11,7 +12,7 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 @Repository
 public class CommentJpaDao implements CommentDao {
 
@@ -24,6 +25,7 @@ public class CommentJpaDao implements CommentDao {
     }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Comment addComment(Comment comment) {
         em.persist(comment);
         return em.find(Comment.class, comment.getCommentId());

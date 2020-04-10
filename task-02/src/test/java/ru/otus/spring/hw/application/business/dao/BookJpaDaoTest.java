@@ -82,8 +82,8 @@ class BookJpaDaoTest {
     @DisplayName(" удалить книгу")
     @Test
     void deleteById() {
-        dao.deleteById(1L);
-        assertThat(dao.count()).isEqualTo(9);
+        dao.delete(1L);
+        em.flush();
         assertThat(em.find(Book.class, 1L)).isNull();
     }
 

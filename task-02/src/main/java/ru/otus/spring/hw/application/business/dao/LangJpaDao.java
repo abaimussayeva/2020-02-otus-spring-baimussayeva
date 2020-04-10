@@ -10,7 +10,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 @Repository
 public class LangJpaDao implements LangDao {
 

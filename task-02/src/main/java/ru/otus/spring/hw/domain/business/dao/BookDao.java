@@ -10,6 +10,6 @@ public interface BookDao {
     Book save(Book book);
     Optional<Book> getById(long id);
     List<Book> getAll();
-    void deleteById(long id);
+    void delete(long bookId);
     List<Book> searchByName(String search);
 }

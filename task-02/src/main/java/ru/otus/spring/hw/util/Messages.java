@@ -1,4 +1,4 @@
-package ru.otus.spring.hw.domain.model;
+package ru.otus.spring.hw.util;
 
 public class Messages {
     public static final String Y = "1";

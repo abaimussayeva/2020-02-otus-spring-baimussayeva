@@ -3,60 +3,45 @@ package ru.otus.spring.hw.application.business.dao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.EmptyResultDataAccessException;
-import ru.otus.spring.hw.domain.business.IOService;
-import ru.otus.spring.hw.domain.business.dao.BookAuthorsDao;
-import ru.otus.spring.hw.domain.business.services.BaseService;
+import ru.otus.spring.hw.domain.model.Author;
 import ru.otus.spring.hw.domain.model.Book;
-import ru.otus.spring.hw.domain.model.entity.BookEntity;
+import ru.otus.spring.hw.domain.model.Genre;
+import ru.otus.spring.hw.domain.model.Lang;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("Dao для работы с книгами должно")
-@JdbcTest
-@Import({BookJdbcDao.class, BookAuthorsJdbcDao.class})
-class BookJdbcDaoTest {
-
-    @Autowired
-    private BookJdbcDao dao;
+@DisplayName("Репозиторий на основе Jpa для работы с книгами должно")
+@DataJpaTest
+@Import({BookJpaDao.class})
+class BookJpaDaoTest {
 
     @Autowired
-    private BookAuthorsDao bookAuthorsDao;
+    private TestEntityManager em;
 
-    @MockBean
-    private AuthorJdbcDao authorDao;
-
-    @MockBean
-    private GenreJdbcDao genreDao;
-
-    @MockBean
-    private LangJdbcDao langDao;
-
-    @MockBean
-    private IOService ioService;
-
-    @MockBean
-    private BaseService baseService;
+    @Autowired
+    private BookJpaDao dao;
 
     @DisplayName(" вернуть изначально кол-во книг в бд")
     @Test
     void countTest() {
-        int count = dao.count();
-        assertThat(count).isEqualTo(10);
+        long count = dao.count();
+        assertThat(count).isEqualTo(10L);
     }
 
     @DisplayName(" добавить книгу и вернуть полное описание книги")
     @Test
     void insert() {
-        BookEntity entity = new BookEntity(BookEntity.NEW_BOOK_ID, "Design Patterns", 14L, 2L, List.of(10L, 11L));
-        Book book = dao.insert(entity);
-        assertThat(dao.count()).isEqualTo(11);
+        Book entity = new Book("Design Patterns", new Genre(14L, "Java"),
+                new Lang(2L, "Английский"),
+                List.of(new Author(10L, "Erich Gamma", ""),
+                        new Author(11L, "Richard Helm", "")));
+        Book book = dao.save(entity);
+        assertThat(book.getBookId()).isNotEqualTo(0L);
         assertThat(book.getName()).isEqualTo("Design Patterns");
         assertThat(book.getAuthors().size()).isEqualTo(2);
         assertThat(book.getAuthors().get(0).getName()).isEqualTo("Erich Gamma");
@@ -68,7 +53,7 @@ class BookJdbcDaoTest {
     @DisplayName(" вернуть книгу по ид")
     @Test
     void getById() {
-        Book book = dao.getById(1L);
+        Book book = dao.getById(1L).orElseThrow();
         assertThat(book.getName()).isEqualTo("Джейн Эйр");
         assertThat(book.getAuthors().size()).isEqualTo(1);
         assertThat(book.getAuthors().get(0).getName()).isEqualTo("Шарлотта Бронте");
@@ -79,25 +64,30 @@ class BookJdbcDaoTest {
     @DisplayName(" вернуть пустую книгу из-за отсутствующего ид")
     @Test
     void getByIdNoSuchElement() {
-        assertThrows(EmptyResultDataAccessException.class, () -> dao.getById(10000L));
+        assertThat(dao.getById(10000L).isEmpty());
     }
 
     @DisplayName(" вернуть список из 10 книг")
     @Test
     void getAll() {
-        assertThat(dao.getAll().size()).isEqualTo(10);
+        List<Book> books = dao.getAll();
+        assertThat(books).hasSize(10)
+                .allMatch(s -> s.getBookId() != 0L)
+                .allMatch(s -> !s.getName().equals(""))
+                .allMatch(s -> s.getAuthors() != null && s.getAuthors().size() > 0)
+                .allMatch(s -> s.getGenre() != null)
+                .allMatch(s -> s.getLang() != null);
     }
 
     @DisplayName(" удалить книгу")
     @Test
     void deleteById() {
-        Book book = dao.getById(1L);
-        dao.deleteById(book.getBookId());
-        assertThat(dao.count()).isEqualTo(9);
-        assertThrows(EmptyResultDataAccessException.class, () -> dao.getById(10000L));
+        dao.delete(1L);
+        em.flush();
+        assertThat(em.find(Book.class, 1L)).isNull();
     }
 
-    @DisplayName(" найти книга с вхождением 'же'")
+    @DisplayName(" найти книги с вхождением 'же'")
     @Test
     void searchByName() {
         List<Book> books = dao.searchByName("же");
@@ -106,11 +96,30 @@ class BookJdbcDaoTest {
         assertThat(books.get(1).getName()).isEqualTo("Жестокий век");
     }
 
+    @DisplayName(" вернуть пустой список книг")
+    @Test
+    void searchByNameNoBooksFound() {
+        List<Book> books = dao.searchByName("ghghghg");
+        assertThat(books.size()).isEqualTo(0);
+    }
+
+    @DisplayName(" вернуть список из 2 книг")
+    @Test
+    void searchByName2books() {
+        List<Book> books = dao.searchByName("l");
+        assertThat(books.size()).isEqualTo(2);
+    }
+
     @DisplayName(" обновить книгу про паттерны")
     @Test
     void update() {
-        Book book = dao.getById(10L);
-        book = dao.update(new BookEntity(book.getBookId(), "Design Patterns", 14L, 2L, List.of(10L, 11L)));
+        Book book = dao.getById(10L).orElseThrow();
+        book.setName("Design Patterns");
+        book.getAuthors().remove(3);
+        book.getAuthors().remove(2);
+        book.setGenre(new Genre(14L, "Java"));
+        book = dao.save(book);
+        em.flush();//чтобы увидеть все запросы в бд
         assertThat(book.getName()).isEqualTo("Design Patterns");
         assertThat(book.getAuthors().size()).isEqualTo(2);
         assertThat(book.getAuthors().get(0).getName()).isEqualTo("Erich Gamma");

@@ -31,7 +31,18 @@ create index books_name_idx on books(name);
 create table book_authors(
     book_id bigint not null,
     author_id bigint not null,
-    primary key(book_id, author_id)
+    primary key(book_id, author_id),
+    foreign key(book_id) references books(book_id) on delete cascade,
+    foreign key(author_id) references authors(author_id) on delete cascade
+);
+
+create table book_comments(
+    comment_id bigint not null auto_increment,
+    book_id bigint not null,
+    comment varchar(255) not null,
+    created timestamp not null default current_timestamp,
+    primary key(comment_id),
+    foreign key(book_id) references books(book_id) on delete cascade
 );
 
 create table languages(
@@ -39,6 +50,3 @@ create table languages(
     name varchar(64) not null,
     primary key(lang_id)
 );
-
-
-

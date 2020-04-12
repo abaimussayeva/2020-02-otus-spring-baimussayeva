@@ -1,7 +1,6 @@
 package ru.otus.spring.hw.domain.business;
 
 import org.springframework.util.StringUtils;
-import ru.otus.spring.hw.domain.model.entity.BookEntity;
 import ru.otus.spring.hw.util.StringUtil;
 
 import java.util.HashSet;
@@ -9,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IOService {
+
+    long EMPTY_LONG = 0L;
+
     void out(String message);
     String readString(String prompt);
     void printWarning(String message);
@@ -44,7 +46,7 @@ public interface IOService {
      */
     default Long selectLongFromList(String headingMessage, String promptMessage,
                                     Map<Long, String> options, Long defaultValue) {
-        Long answer;
+        long answer;
         Set<Long> allowedAnswers = new HashSet<>(options.keySet());
 
         out(headingMessage + ": ");
@@ -55,11 +57,11 @@ public interface IOService {
             try {
                 answer = Long.parseLong(readString(promptMessage));
             } catch (NumberFormatException e) {
-                answer = null;
+                answer = EMPTY_LONG;
             }
-        } while (answer != null && !allowedAnswers.contains(answer));
+        } while (!allowedAnswers.contains(answer));
 
-        if (StringUtils.isEmpty(answer) && allowedAnswers.contains(BookEntity.NEW_BOOK_ID)) {
+        if (answer == EMPTY_LONG && allowedAnswers.contains(EMPTY_LONG)) {
             return defaultValue;
         }
         return answer;

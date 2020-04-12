@@ -15,12 +15,19 @@ import ru.otus.spring.hw.domain.business.dao.BookDao;
 import ru.otus.spring.hw.domain.business.dao.GenreDao;
 import ru.otus.spring.hw.domain.business.dao.LangDao;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
-import ru.otus.spring.hw.domain.business.services.BaseService;
+import ru.otus.spring.hw.domain.business.services.AuthorService;
+import ru.otus.spring.hw.domain.business.services.BookService;
+import ru.otus.spring.hw.domain.business.services.GenreService;
+import ru.otus.spring.hw.domain.business.services.LangService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
-import ru.otus.spring.hw.domain.model.*;
+import ru.otus.spring.hw.domain.model.Author;
+import ru.otus.spring.hw.domain.model.Book;
+import ru.otus.spring.hw.domain.model.Genre;
+import ru.otus.spring.hw.domain.model.Lang;
 import ru.otus.spring.hw.domain.model.dto.BookDto;
-import ru.otus.spring.hw.domain.model.entity.BookEntity;
+import ru.otus.spring.hw.domain.model.dto.GenreDto;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,7 +53,16 @@ class LibAppCommandsTest {
     private IOService ioService;
 
     @MockBean
-    private BaseService baseService;
+    private BookService baseService;
+
+    @MockBean
+    private AuthorService authorService;
+
+    @MockBean
+    private GenreService genreService;
+
+    @MockBean
+    private LangService langService;
 
     @MockBean
     private BookDao bookDao;
@@ -80,7 +96,8 @@ class LibAppCommandsTest {
         when(ioService.readString(anyString()))
                 .thenAnswer(mock -> "Поиск");
         when(baseService.searchBookByName("Поиск")).thenReturn(List.of(
-                new Book(1L, "name", new Genre(1L,"jenre"), new Lang(1L, "ru"))));
+                new Book(1L, "name", new Genre(1L,"jenre"), 
+                        new Lang(1L, "ru"), new ArrayList<>())));
         shell.evaluate(() -> COMMAND_SEARCH);
         verify(baseService, times(1)).searchBookByName("Поиск");
         verify(ioService, times(1)).out(anyString());
@@ -90,13 +107,13 @@ class LibAppCommandsTest {
     @DisplayName(" должен вызвать метод создания книги")
     @Test
     void create() throws DBOperationException {
-        when(baseService.getAuthors()).thenReturn(List.of(
+        when(authorService.getAuthors()).thenReturn(List.of(
                 new Author(1L, "Шарлотта Бронте", ""),
                 new Author(2L, "Энн Бронте", "")));
-        when(baseService.getGenres()).thenReturn(List.of(
-                new Genre(1L, "Худ. лит-ра"),
-                new Genre(2L, "Наука")));
-        when(baseService.getLangs()).thenReturn(List.of(
+        when(genreService.getGenres()).thenReturn(List.of(
+                new GenreDto(1L, "Худ. лит-ра"),
+                new GenreDto(2L, "Наука")));
+        when(langService.getLangs()).thenReturn(List.of(
                 new Lang(1L, "ru"),
                 new Lang(2L, "en")));
         when(ioService.readString(anyString())).thenAnswer(mock -> "Новая книга");
@@ -106,9 +123,9 @@ class LibAppCommandsTest {
                 .thenAnswer(mock -> 1L);
         when(ioService.selectFromList(anyString(), anyString(), anyMap(), eq(null)))
                 .thenAnswer(mock -> "0");
-        when(baseService.addBook(any(BookEntity.class))).thenReturn(new BookDto(1, "Новая книга", "Худ. лит-ра", "ru", "Энн Бронте"));
+        when(baseService.save(any(Book.class))).thenReturn(new BookDto(1, "Новая книга", "Худ. лит-ра", "ru", "Энн Бронте"));
         shell.evaluate(() -> COMMAND_ADD);
-        verify(baseService, times(1)).addBook(any(BookEntity.class));
+        verify(baseService, times(1)).save(any(Book.class));
         verify(ioService, times(1)).printSuccess(l10nService.getMessage("book_added"));
         verify(ioService, times(5)).printKeyValue(anyString(), anyString());
     }
@@ -119,7 +136,7 @@ class LibAppCommandsTest {
         when(ioService.readString(anyString()))
                 .thenAnswer(mock -> "Джейн Эйр");
         when(baseService.searchBookByName("Джейн Эйр")).thenReturn(List.of(
-                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"))));
+                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"), new ArrayList<>())));
         when(ioService.selectLongFromList(anyString(), anyString(), anyMap(), eq(null)))
                 .thenAnswer(mock -> 1L);
         when(ioService.selectFromList(anyString(), anyString(), anyMap(), eq(null)))
@@ -146,7 +163,7 @@ class LibAppCommandsTest {
         when(ioService.readString(anyString()))
                 .thenAnswer(mock -> "Джейн Эйр");
         when(baseService.searchBookByName("Джейн Эйр")).thenReturn(List.of(
-                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"))));
+                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"), new ArrayList<>())));
         when(ioService.selectLongFromList(anyString(), anyString(), anyMap(), eq(null)))
                 .thenAnswer(mock -> 1L);
         when(ioService.selectFromList(anyString(), anyString(), anyMap(), eq(null)))
@@ -170,14 +187,14 @@ class LibAppCommandsTest {
         when(ioService.readString(anyString()))
                 .thenAnswer(mock -> "Джейн Эйр");
         when(baseService.searchBookByName(anyString())).thenReturn(List.of(
-                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"))));
-        when(baseService.getAuthors()).thenReturn(List.of(
+                new Book(1L, "Джейн Эйр", new Genre(1L,"jenre"), new Lang(1L, "ru"), new ArrayList<>())));
+        when(authorService.getAuthors()).thenReturn(List.of(
                 new Author(1L, "Шарлотта Бронте", ""),
                 new Author(2L, "Энн Бронте", "")));
-        when(baseService.getGenres()).thenReturn(List.of(
-                new Genre(1L, "Худ. лит-ра"),
-                new Genre(2L, "Наука")));
-        when(baseService.getLangs()).thenReturn(List.of(
+        when(genreService.getGenres()).thenReturn(List.of(
+                new GenreDto(1L, "Худ. лит-ра"),
+                new GenreDto(2L, "Наука")));
+        when(langService.getLangs()).thenReturn(List.of(
                 new Lang(1L, "ru"),
                 new Lang(2L, "en")));
         when(ioService.readString(anyString())).thenAnswer(mock -> "Измененное название");
@@ -198,9 +215,9 @@ class LibAppCommandsTest {
                 .thenAnswer(mock -> "4") //язык
                 .thenAnswer(mock -> confirm) //подтверждение
                 ;
-        when(baseService.editBook(any(BookEntity.class))).thenReturn(new BookDto(1, "Измененное название", "Худ. лит-ра", "en", "Энн Бронте"));
+        when(baseService.save(any(Book.class))).thenReturn(new BookDto(1, "Измененное название", "Худ. лит-ра", "en", "Энн Бронте"));
         shell.evaluate(() -> COMMAND_EDIT);
-        verify(baseService, times(callCount)).editBook(any(BookEntity.class));
+        verify(baseService, times(callCount)).save(any(Book.class));
         if (callCount == 1) {
             verify(ioService, times(1)).printSuccess(message);
         } else {

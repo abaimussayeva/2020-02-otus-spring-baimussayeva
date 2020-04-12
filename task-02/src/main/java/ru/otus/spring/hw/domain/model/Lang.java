@@ -1,19 +1,22 @@
 package ru.otus.spring.hw.domain.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "languages")
 public class Lang {
-    private final long langId;
-    private final String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "lang_id", nullable = false, unique = true)
+    private long langId;
 
-    public Lang(long langId, String name) {
-        this.langId = langId;
-        this.name = name;
-    }
-
-    public long getLangId() {
-        return langId;
-    }
-
-    public String getName() {
-        return name;
-    }
+    @Column(name = "name", nullable = false)
+    private String name;
 }

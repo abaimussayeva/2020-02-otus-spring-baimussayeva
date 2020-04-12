@@ -82,7 +82,7 @@ public class LibAppCommands {
         }
         books.forEach(book -> {
             ioService.out("------------------------");
-            showBook(book.toDto());
+            showBook(BookDto.fromBook(book));
         });
     }
 
@@ -216,7 +216,7 @@ public class LibAppCommands {
     }
 
     private void printComments(Book current, List<Comment> all) {
-        showBook(current.toDto());
+        showBook(BookDto.fromBook(current));
         ioService.out(l10nService.getMessage("comments") + ": ");
         for (Comment comment: all) {
             ioService.printKeyValue("   " + DateFormat.getDateTimeInstance().format(comment.getCreated()), comment.getComment());

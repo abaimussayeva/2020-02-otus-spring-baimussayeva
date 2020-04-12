@@ -1,7 +1,7 @@
 package ru.otus.spring.hw.application.business.services;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.hw.domain.business.dao.GenreDao;
+import ru.otus.spring.hw.application.business.repository.GenreRepository;
 import ru.otus.spring.hw.domain.business.services.GenreService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Genre;
@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 @Service
 public class GenreServiceImpl implements GenreService {
 
-    private final GenreDao genreDao;
+    private final GenreRepository genreRepository;
 
-    public GenreServiceImpl(GenreDao genreDao) {
-        this.genreDao = genreDao;
+    public GenreServiceImpl(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
     }
 
     @Override
     public List<GenreDto> getGenres() throws DBOperationException {
         try {
-            List<Genre> genres = genreDao.getAll();
+            List<Genre> genres = genreRepository.findAll();
             if (genres.isEmpty()) {
                 return Collections.emptyList();
             }

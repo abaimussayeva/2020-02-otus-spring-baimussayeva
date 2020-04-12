@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.shell.Shell;
+import ru.otus.spring.hw.application.business.repository.AuthorRepository;
+import ru.otus.spring.hw.application.business.repository.BookRepository;
+import ru.otus.spring.hw.application.business.repository.GenreRepository;
+import ru.otus.spring.hw.application.business.repository.LangRepository;
 import ru.otus.spring.hw.domain.business.IOService;
-import ru.otus.spring.hw.domain.business.dao.AuthorDao;
-import ru.otus.spring.hw.domain.business.dao.BookDao;
-import ru.otus.spring.hw.domain.business.dao.GenreDao;
-import ru.otus.spring.hw.domain.business.dao.LangDao;
 import ru.otus.spring.hw.domain.business.l10n.L10nService;
 import ru.otus.spring.hw.domain.business.services.AuthorService;
 import ru.otus.spring.hw.domain.business.services.BookService;
@@ -65,16 +65,16 @@ class LibAppCommandsTest {
     private LangService langService;
 
     @MockBean
-    private BookDao bookDao;
+    private BookRepository bookDao;
 
     @MockBean
-    private AuthorDao authorDao;
+    private AuthorRepository authorDao;
 
     @MockBean
-    private LangDao langDao;
+    private LangRepository langDao;
 
     @MockBean
-    private GenreDao genreDao;
+    private GenreRepository genreDao;
 
     private static final String COMMAND_ALL = "all";
     private static final String COMMAND_ADD = "add";

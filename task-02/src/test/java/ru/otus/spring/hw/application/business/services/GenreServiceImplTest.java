@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.otus.spring.hw.domain.business.dao.GenreDao;
+import ru.otus.spring.hw.application.business.repository.GenreRepository;
 import ru.otus.spring.hw.domain.business.services.GenreService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Genre;
@@ -22,9 +22,9 @@ class GenreServiceImplTest {
 
     @DisplayName(" вернуть дерево жанров")
     @Test
-    void getAllTree(@Mock GenreDao genreDao) throws DBOperationException {
+    void getAllTree(@Mock GenreRepository genreDao) throws DBOperationException {
         GenreService genreService = new GenreServiceImpl(genreDao);
-        when(genreDao.getAll()).thenReturn(List.of(new Genre(1L, "Худ. лит-ра", null),
+        when(genreDao.findAll()).thenReturn(List.of(new Genre(1L, "Худ. лит-ра", null),
                 new Genre(2L, "Проза", 1L),
                 new Genre(3L, "Поэзия", 1L),
                 new Genre(4L, "Повести, рассказы", 1L),

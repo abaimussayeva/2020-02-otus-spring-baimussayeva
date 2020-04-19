@@ -1,11 +1,10 @@
-package ru.otus.spring.hw.application.business.dao;
+package ru.otus.spring.hw.application.business.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 import ru.otus.spring.hw.domain.model.Author;
 import ru.otus.spring.hw.domain.model.Book;
 import ru.otus.spring.hw.domain.model.Genre;
@@ -17,14 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с книгами должно")
 @DataJpaTest
-@Import({BookJpaDao.class})
-class BookJpaDaoTest {
+class BookRepositoryTest {
 
     @Autowired
     private TestEntityManager em;
 
     @Autowired
-    private BookJpaDao dao;
+    private BookRepository dao;
 
     @DisplayName(" вернуть изначально кол-во книг в бд")
     @Test
@@ -53,7 +51,7 @@ class BookJpaDaoTest {
     @DisplayName(" вернуть книгу по ид")
     @Test
     void getById() {
-        Book book = dao.getById(1L).orElseThrow();
+        Book book = dao.findById(1L).orElseThrow();
         assertThat(book.getName()).isEqualTo("Джейн Эйр");
         assertThat(book.getAuthors().size()).isEqualTo(1);
         assertThat(book.getAuthors().get(0).getName()).isEqualTo("Шарлотта Бронте");
@@ -64,13 +62,13 @@ class BookJpaDaoTest {
     @DisplayName(" вернуть пустую книгу из-за отсутствующего ид")
     @Test
     void getByIdNoSuchElement() {
-        assertThat(dao.getById(10000L).isEmpty());
+        assertThat(dao.findById(10000L).isEmpty());
     }
 
     @DisplayName(" вернуть список из 10 книг")
     @Test
     void getAll() {
-        List<Book> books = dao.getAll();
+        List<Book> books = dao.findAll();
         assertThat(books).hasSize(10)
                 .allMatch(s -> s.getBookId() != 0L)
                 .allMatch(s -> !s.getName().equals(""))
@@ -82,7 +80,7 @@ class BookJpaDaoTest {
     @DisplayName(" удалить книгу")
     @Test
     void deleteById() {
-        dao.delete(1L);
+        dao.deleteById(1L);
         em.flush();
         assertThat(em.find(Book.class, 1L)).isNull();
     }
@@ -90,7 +88,7 @@ class BookJpaDaoTest {
     @DisplayName(" найти книги с вхождением 'же'")
     @Test
     void searchByName() {
-        List<Book> books = dao.searchByName("же");
+        List<Book> books = dao.findByNameContainingIgnoreCase("же");
         assertThat(books.size()).isEqualTo(2);
         assertThat(books.get(0).getName()).isEqualTo("Джейн Эйр");
         assertThat(books.get(1).getName()).isEqualTo("Жестокий век");
@@ -99,21 +97,21 @@ class BookJpaDaoTest {
     @DisplayName(" вернуть пустой список книг")
     @Test
     void searchByNameNoBooksFound() {
-        List<Book> books = dao.searchByName("ghghghg");
+        List<Book> books = dao.findByNameContainingIgnoreCase("ghghghg");
         assertThat(books.size()).isEqualTo(0);
     }
 
     @DisplayName(" вернуть список из 2 книг")
     @Test
     void searchByName2books() {
-        List<Book> books = dao.searchByName("l");
+        List<Book> books = dao.findByNameContainingIgnoreCase("l");
         assertThat(books.size()).isEqualTo(2);
     }
 
     @DisplayName(" обновить книгу про паттерны")
     @Test
     void update() {
-        Book book = dao.getById(10L).orElseThrow();
+        Book book = dao.findById(10L).orElseThrow();
         book.setName("Design Patterns");
         book.getAuthors().remove(3);
         book.getAuthors().remove(2);

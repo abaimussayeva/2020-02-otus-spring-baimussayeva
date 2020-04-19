@@ -3,7 +3,7 @@ package ru.otus.spring.hw.application.business.services;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.spring.hw.domain.business.dao.BookDao;
+import ru.otus.spring.hw.application.business.repository.BookRepository;
 import ru.otus.spring.hw.domain.business.services.BookService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Book;
@@ -15,18 +15,18 @@ import java.util.List;
 @Service
 public class BookServiceImpl implements BookService {
 
-    private final BookDao bookDao;
+    private final BookRepository bookRepository;
 
-    public BookServiceImpl(BookDao bookDao) {
-        this.bookDao = bookDao;
+    public BookServiceImpl(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     @Override
     public List<BookDto> getAllBooks() throws DBOperationException {
         try {
-            List<Book> books = bookDao.getAll();
+            List<Book> books = bookRepository.findAll();
             List<BookDto> bookDtoList = new ArrayList<>();
-            books.forEach(b -> bookDtoList.add(b.toDto()));
+            books.forEach(b -> bookDtoList.add(BookDto.fromBook(b)));
             return bookDtoList;
         } catch (Exception e) {
             throw new DBOperationException("Reading books error", e);
@@ -36,8 +36,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto save(Book book) throws DBOperationException {
         try {
-            Book inserted = bookDao.save(book);
-            return inserted.toDto();
+            Book inserted = bookRepository.save(book);
+            return BookDto.fromBook(inserted);
         } catch (Exception e) {
             throw new DBOperationException("Insert book error", e);
         }
@@ -46,7 +46,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void removeBook(long bookId) throws DBOperationException {
         try {
-            bookDao.delete(bookId);
+            bookRepository.deleteById(bookId);
         } catch (Exception e) {
             throw new DBOperationException("Delete book error", e);
         }
@@ -55,7 +55,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> searchBookByName(String search) throws DBOperationException {
         try {
-            return bookDao.searchByName(search);
+            return bookRepository.findByNameContainingIgnoreCase(search);
         } catch (Exception e) {
             throw new DBOperationException("Book search error", e);
         }
@@ -65,7 +65,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     public Book getBookById(long bookId) throws DBOperationException {
         try {
-            Book book = bookDao.getById(bookId).orElseThrow();
+            Book book = bookRepository.getOne(bookId);
             Hibernate.initialize(book.getComments());
             return book;
         } catch (Exception e) {

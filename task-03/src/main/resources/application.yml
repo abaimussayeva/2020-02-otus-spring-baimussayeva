@@ -1,0 +1,23 @@
+application:
+  locales:
+    ru: ru-RU
+    en: en-US
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED
+spring:
+  shell:
+    interactive:
+      enabled: true
+  data:
+    mongodb:
+      uri: mongodb://localhost
+      port: 27017
+      database: library_by_aigul
+
+logging:
+  level:
+    ROOT: INFO

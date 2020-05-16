@@ -1,0 +1,18 @@
+application:
+  locales:
+    ru: ru-RU
+    en: en-US
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED
+spring:
+  shell:
+    interactive:
+      enabled: false
+  data:
+    mongodb:
+      port: 0
+      database: test_library

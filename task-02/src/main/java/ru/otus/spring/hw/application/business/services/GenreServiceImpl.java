@@ -2,10 +2,10 @@ package ru.otus.spring.hw.application.business.services;
 
 import org.springframework.stereotype.Service;
 import ru.otus.spring.hw.application.business.repository.GenreRepository;
+import ru.otus.spring.hw.domain.business.dto.GenreDto;
 import ru.otus.spring.hw.domain.business.services.GenreService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Genre;
-import ru.otus.spring.hw.domain.model.dto.GenreDto;
 
 import java.util.ArrayList;
 import java.util.Collections;

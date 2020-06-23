@@ -3,41 +3,45 @@ package ru.otus.spring.hw.application.business.services;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.spring.hw.application.business.mapper.BookMapper;
 import ru.otus.spring.hw.application.business.repository.BookRepository;
+import ru.otus.spring.hw.domain.business.dto.BookDto;
 import ru.otus.spring.hw.domain.business.services.BookService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Book;
-import ru.otus.spring.hw.domain.model.dto.BookDto;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+    private final BookMapper mapper;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(BookRepository bookRepository, BookMapper mapper) {
         this.bookRepository = bookRepository;
+        this.mapper = mapper;
     }
 
     @Override
     public List<BookDto> getAllBooks() throws DBOperationException {
         try {
-            List<Book> books = bookRepository.findAll();
-            List<BookDto> bookDtoList = new ArrayList<>();
-            books.forEach(b -> bookDtoList.add(BookDto.fromBook(b)));
-            return bookDtoList;
+            return bookRepository.findAll()
+                    .stream()
+                    .map(mapper::toDto)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new DBOperationException("Reading books error", e);
         }
     }
 
     @Override
-    public BookDto save(Book book) throws DBOperationException {
+    public BookDto save(BookDto book) throws DBOperationException {
         try {
-            Book inserted = bookRepository.save(book);
-            return BookDto.fromBook(inserted);
+            Book inserted = bookRepository.save(mapper.toEntity(book));
+            return mapper.toDto(inserted);
         } catch (Exception e) {
             throw new DBOperationException("Insert book error", e);
         }
@@ -53,9 +57,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> searchBookByName(String search) throws DBOperationException {
+    public List<BookDto> searchBookByName(String search) throws DBOperationException {
         try {
-            return bookRepository.findByNameContainingIgnoreCase(search);
+            return bookRepository.findByNameContainingIgnoreCase(search)
+                    .stream()
+                    .map(mapper::toDto)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new DBOperationException("Book search error", e);
         }
@@ -63,11 +70,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public Book getBookById(long bookId) throws DBOperationException {
+    public Optional<BookDto> getBookById(long bookId) throws DBOperationException {
         try {
-            Book book = bookRepository.getOne(bookId);
-            Hibernate.initialize(book.getComments());
-            return book;
+            Optional<Book> book = bookRepository.findById(bookId);
+            if (book.isEmpty()) {
+                return Optional.empty();
+            }
+            Hibernate.initialize(book.get().getComments());
+            return Optional.of(mapper.toDto(book.get()));
         } catch (Exception e) {
             throw new DBOperationException("Cannot load book from repository", e);
         }

@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.spring.hw.application.business.repository.GenreRepository;
+import ru.otus.spring.hw.domain.business.dto.GenreDto;
 import ru.otus.spring.hw.domain.business.services.GenreService;
 import ru.otus.spring.hw.domain.errors.DBOperationException;
 import ru.otus.spring.hw.domain.model.Genre;
-import ru.otus.spring.hw.domain.model.dto.GenreDto;
 
 import java.util.List;
 

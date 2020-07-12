@@ -47,7 +47,7 @@ class TreeObjectChooser extends Component {
     renderTree = (nodes) => {
         const {classes} = this.props;
         return (
-            <TreeItem key={nodes.genreId.toString()} nodeId={nodes.genreId.toString()}
+            <TreeItem key={nodes.genreId} nodeId={nodes.genreId}
                       label={
                           <div className={classes.labelRoot}>
                               {Array.isArray(nodes.childGenres) && nodes.childGenres.length > 0 ?

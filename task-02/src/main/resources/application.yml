@@ -1,4 +1,7 @@
 application:
+  jwt:
+    secret: 2KOSMMJYO8
+    expirationInMs: 604800000
   locales:
     ru: ru-RU
     en: en-US

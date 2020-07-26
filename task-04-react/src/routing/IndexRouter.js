@@ -1,9 +1,11 @@
 import React, {Component} from "react";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
 import HomePage from "../pages/HomePage";
-import 'react-s-alert/dist/s-alert-default.css';
-import 'react-s-alert/dist/s-alert-css-effects/slide.css';
-import {createMuiTheme, ThemeProvider} from "@material-ui/core";
+import {connect} from 'react-redux';
+import {setUser} from "../redux/actions/userActions";
+import {clearStore} from "../redux/actions/appActions";
+import {getUser} from "../util/APIUtils";
+import Login from "../pages/login/Login";
 
 class IndexRouter extends Component {
     constructor(props) {
@@ -11,21 +13,59 @@ class IndexRouter extends Component {
         this.state = {
         };
     }
+
+    loadCurrentlyLoggedInUser = () => {
+        getUser()
+            .then(response => {
+                this.props.setUser(response.data);
+            })
+            .catch(error => {
+                this.props.setUser();
+            });
+    };
+
     render() {
         return (
-            <ThemeProvider theme={theme}>
-                <Router>
-                    <Switch>
-                        <Route path="/">
-                            <HomePage />
-                        </Route>
-                    </Switch>
-                </Router>
-            </ThemeProvider>
+            <Router>
+                <Switch>
+                    <Route
+                        exact
+                        path="/login"
+                        render={props =>
+                            this.props.authenticated ? (
+                                <Redirect to="/" />
+                            ) : (
+                                <Login
+                                    {...props}
+                                    loadCurrentUser={this.loadCurrentlyLoggedInUser}
+                                />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/"
+                        render={() =>
+                            this.props.authenticated ? (
+                                <HomePage />
+                            ) : (
+                                <Redirect to="/login" />
+                            )
+                        }
+                    />
+                </Switch>
+            </Router>
         );
     }
 }
 
-const theme = createMuiTheme();
+const mapStateToProps = state => ({
+    authenticated: state.user.authenticated,
+    currentUser: state.user.data,
+});
 
-export default IndexRouter;
+const mapDispatchToProps = dispatch => ({
+    setUser: data => dispatch(setUser(data)),
+    clearStore: () => dispatch(clearStore()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(IndexRouter)

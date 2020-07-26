@@ -7,6 +7,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.55",
     "@material-ui/pickers": "3.2.8",
+    "@material-ui/styles": "latest",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -19,9 +20,13 @@
     "react-dom": "^16.13.1",
     "react-loader-spinner": "^3.1.14",
     "react-promise-tracker": "^2.1.0",
+    "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-s-alert": "^1.4.1",
     "react-scripts": "3.4.1",
+    "redux": "^4.0.5",
+    "redux-persist": "^6.0.0",
+    "redux-thunk": "^2.3.0",
     "simple-peer": "^9.6.2"
   },
   "scripts": {

@@ -34,7 +34,7 @@ class BookEditDialog extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            book: new Book(-1, '', [], {}, {})
+            book: new Book(null, '', [], {}, {})
         };
     }
 
@@ -44,7 +44,7 @@ class BookEditDialog extends Component {
 
     handleSave = () => {
         const {book} = this.state;
-        if (book.bookId === -1) {
+        if (book.bookId === null) {
             trackPromise(
                 createBook(book).then(r => {
                     this.props.close();
@@ -52,6 +52,9 @@ class BookEditDialog extends Component {
                 }).catch(error => {
                     if (error.response.status === 400) {
                         alert(error.response.data.message);
+                    }
+                    if (error.response.status === 500) {
+                        alert("Ошибка сохранения книги");
                     }
                 })
             );
@@ -63,6 +66,9 @@ class BookEditDialog extends Component {
                 }).catch(error => {
                     if (error.response.status === 400) {
                         alert(error.response.data.message);
+                    }
+                    if (error.response.status === 500) {
+                        alert("Ошибка сохранения книги");
                     }
                 })
             );
@@ -110,7 +116,7 @@ class BookEditDialog extends Component {
         const {classes, open, newBook, genres, bookId, authors, langs} = this.props;
         const {book} = this.state;
         if (bookId !== book.bookId) {
-            if (bookId !== -1) {
+            if (bookId !== null) {
                 loadBook(bookId).then(response => {
                     this.setState(prevState => ({
                         book: response.data
@@ -118,7 +124,7 @@ class BookEditDialog extends Component {
                 });
             } else {
                 this.setState(prevState => ({
-                    book: new Book(-1, '', [], {}, {})
+                    book: new Book(null, '', [], {}, {})
                 }));
             }
         }

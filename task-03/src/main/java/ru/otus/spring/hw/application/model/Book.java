@@ -1,5 +1,6 @@
 package ru.otus.spring.hw.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Book implements HasName {
     @DBRef
     private List<Author> authors;
 
+    @JsonIgnore
     private List<Comment> comments;
 
     public Book(String name, Genre genre, Lang lang, List<Author> authors) {

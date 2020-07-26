@@ -19,7 +19,7 @@ class BooksPage extends Component {
             langs: [],
             dialogOpen: false,
             newBook: false,
-            currentBook: new Book(-1, '', [], {}, {})
+            currentBook: new Book(null, '', [], {}, {})
         };
     }
 
@@ -53,7 +53,7 @@ class BooksPage extends Component {
     createBook = () => {
         this.setState({
             dialogOpen: true,
-            currentBook: new Book(-1, '', [], {}, {}),
+            currentBook: new Book(null, '', [], {}, {}),
             newBook: true
         });
     };

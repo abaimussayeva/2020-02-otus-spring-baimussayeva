@@ -4,6 +4,32 @@ drop table if exists books;
 drop table if exists book_authors;
 drop table if exists languages;
 
+
+create table roles(
+    id bigint not null auto_increment,
+    name varchar(255),
+    primary key(id)
+);
+
+create table users(
+    id bigint not null auto_increment,
+    name varchar(255),
+    login varchar(255),
+    email varchar(255),
+    password varchar(255),
+    created timestamp not null default current_timestamp,
+    modified timestamp not null default current_timestamp,
+    primary key(id)
+);
+
+create table user_roles(
+    user_id bigint,
+    role_id bigint,
+    primary key(user_id, role_id),
+    foreign key(user_id) references users(id) on delete cascade,
+    foreign key(role_id) references roles(id) on delete cascade
+);
+
 create table authors(
     author_id bigint not null auto_increment,
     name varchar(255),

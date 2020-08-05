@@ -2,6 +2,18 @@ insert into languages(lang_id, name) values(1, 'Русский');
 insert into languages(lang_id, name) values(2, 'Английский');
 insert into languages(lang_id, name) values(3, 'Казахский');
 
+INSERT INTO roles(id, name) VALUES(1, 'user');
+INSERT INTO roles(id, name) VALUES(2, 'admin');
+
+INSERT INTO users(id, name, login, email, password) VALUES(1, 'Aigul Baimussayeva', 'aigul', 'abaimussayeva@gmail.com', '$2a$10$1PWmmPa7DYvD39RAfKI0beCMMhWEB0nQ9iC1oCtcbZw0f0QzRge72');
+INSERT INTO users(id, name, login, email, password) VALUES(2, 'Николай Иванов', 'nick', 'nick@gmail.com', '$2a$10$1PWmmPa7DYvD39RAfKI0beCMMhWEB0nQ9iC1oCtcbZw0f0QzRge72');
+INSERT INTO users(id, name, login, email, password) VALUES(3, 'Петр Терентьев', 'petr', 'petr@gmail.com', '$2a$10$1PWmmPa7DYvD39RAfKI0beCMMhWEB0nQ9iC1oCtcbZw0f0QzRge72');
+-- пароль 123456
+INSERT INTO user_roles(user_id, role_id) VALUES(1, 1);
+INSERT INTO user_roles(user_id, role_id) VALUES(1, 2);
+INSERT INTO user_roles(user_id, role_id) VALUES(2, 1);
+INSERT INTO user_roles(user_id, role_id) VALUES(3, 1);
+
 insert into authors (author_id, name, description) values (1, 'Шарлотта Бронте', 'Шарлотта Бронте (Charlotte Bronte, псевдоним — Каррер Белл) — английская поэтесса и романистка.');
 insert into authors (author_id, name, description) values (2, 'Чарльз Диккенс ', '');
 insert into authors (author_id, name, description) values (3, 'Лев Толстой', '');

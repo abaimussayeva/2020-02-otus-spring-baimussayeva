@@ -1,5 +1,8 @@
 package ru.otus.spring.hw.application.business.rest;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,21 +24,33 @@ public class AuthController {
 
     private final JwtTokenProvider tokenProvider;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider) {
+    private final Counter loginCounter;
+    private final Counter failLoginCounter;
+
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider,
+                          MeterRegistry registry) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
+        loginCounter = registry.counter("counter.login.success");
+        failLoginCounter = registry.counter("counter.login.failure");
     }
 
     @PostMapping("/api/auth")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getLogin(),
-                        loginRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new AuthResponse(jwt, "Bearer"));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getLogin(),
+                            loginRequest.getPassword()
+                    )
+            );
+            loginCounter.increment();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            return ResponseEntity.ok(new AuthResponse(jwt, "Bearer"));
+        } catch (Exception e) {
+            failLoginCounter.increment();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }
